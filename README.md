@@ -31,3 +31,5 @@ I also included the Dockerfile setup so that if you want you can move it to a Ku
 ```
 clear;python3 run_docker.py
 ```
+### Slack
+Be sure to also set-up the app in the Slack API page (https://api.slack.com/apps) and setup the "slash commands" to use REST on this web server.

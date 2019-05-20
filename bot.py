@@ -1,26 +1,22 @@
 '''
 Title: TS Break Bot
-Company: Teltech
 Author: Arthur Dileo
 www.arthurdileo.me
 '''
 
 from flask import *
-from slackclient import SlackClient
+from slack import WebClient
 import json
 from datetime import datetime,timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
 import os
-from google.cloud import datastore
+import random
 
 app = Flask(__name__)
 
 scheduler = BackgroundScheduler()
 scheduler.start()
-
-client = datastore.Client()
-br = client.key("breaks", "breakData")
 
 # notification increments in minutes
 NOTIFICATIONS = [0, 15]
@@ -31,7 +27,7 @@ except KeyError:
     print("Please add your Bot User OAuth Access Token as an environment variable.")
     exit()
 # Channel ID
-CHANNEL = "GE5QGDNRZ"
+CHANNEL = ""
 
 # health check
 @app.route("/health", methods=['POST','GET'])
@@ -125,12 +121,9 @@ def bot():
 
 # sends a message to a user/channel
 def sendMessage(dest, message):
-    sc.api_call(
-        "chat.postMessage",
-        link_names=1,
+    sc.chat_postMessage(
         channel=dest,
-        text=message
-    )
+        text=message)
     return
 
 # writes to data file - overwrites any previous data
@@ -231,9 +224,9 @@ def startBot():
     writeJson({})
     scheduler.remove_all_jobs()
     scheduler.add_job(startBot, 'cron', day_of_week='mon,tue,wed,fri', week='*',
-                      month='*', year='*', timezone="US/Eastern", hour=10)
+                      month='*', year='*', timezone="US/Eastern", hour=10, minute=random.randrange(59))
     sendMessage(CHANNEL,
-                "* @channel The BreakBot is now accepting breaks for the day.*")
+                "* <!channel> The BreakBot is now accepting breaks for the day.*")
     return ""
 
 # returns current breaks
@@ -316,11 +309,11 @@ def removeBot(user_id):
     removeJobs(user_id)
     return ""
 
-sc = SlackClient(TOKEN)
+sc = WebClient(token=TOKEN)
 
 # start bot on respective days at 10am
 scheduler.add_job(startBot, 'cron', day_of_week='mon,tue,wed,fri', week='*',
-                  month='*', year='*', timezone="US/Eastern", hour=10)
+                  month='*', year='*', timezone="US/Eastern", hour=10, minute=random.randrange(59))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

@@ -10,7 +10,7 @@ Assure you have the following modules installed to assure a working slack bot:
 ```
 Python 3.6
 flask
-slackclient
+slackclient 2.0
 datetime
 apscheduler
 pytz
